@@ -37,7 +37,6 @@ pandas==2.2.3
 scikit_learn==1.5.2
 tensorflow==2.18.0
 tensorflow_intel==2.18.0
-tensorflow_intel==2.17.0
 ```
 
 ## 项目文件介绍
@@ -45,6 +44,7 @@ tensorflow_intel==2.17.0
 - `note.ipynb`：TF1下的所有功能实现
 - `predict_T+1_tf1.py`：TF1下通过前t天数据预测T+1天开盘、收盘、高点、低点
 - `predict_T+1_tf2.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点
+- `predict_T+1_tf2_distiller.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏
 
 ## 数据集要求
 

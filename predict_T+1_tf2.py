@@ -25,15 +25,14 @@ def attention_3d_block(inputs):
     output_attention_mul = Multiply()([inputs, a_probs])
     return output_attention_mul
 
-def create_dataset(dataset, look_back):
+def create_dataset_tomorrow(dataset, look_back):
     dataX, dataY = [], []
-    for i in range(len(dataset) - look_back - 1):
+    for i in range(len(dataset) - look_back):
         a = dataset[i:(i + look_back), :]
         dataX.append(a)
         dataY.append(dataset[i + look_back, :])
     TrainX = np.array(dataX)
     Train_Y = np.array(dataY)
-
     return TrainX, Train_Y
 
 # 多维归一化 返回数据和最大最小值
@@ -112,7 +111,7 @@ data = np.array(data)
 data, normalize = NormalizeMult(data)
 close_column = data[:, 1].reshape(len(data), 1)
 
-train_X, train_Y = create_dataset(data, TIME_STEPS)
+train_X, train_Y = create_dataset_tomorrow(data, TIME_STEPS)
 train_X, test_X, train_Y, test_Y = train_test_split(train_X, train_Y, test_size=0.2, random_state=42)
 
 m = attention_model()

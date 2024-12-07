@@ -29,18 +29,6 @@ def attention_3d_block(inputs):
     return output_attention_mul
 
 
-def create_dataset(dataset, look_back):
-    dataX, dataY = [], []
-    for i in range(len(dataset) - look_back - 1):
-        a = dataset[i:(i + look_back), :]
-        dataX.append(a)
-        dataY.append(dataset[i + look_back, :])
-    TrainX = np.array(dataX)
-    Train_Y = np.array(dataY)
-
-    return TrainX, Train_Y
-
-
 # 多维归一化  返回数据和最大最小值
 def NormalizeMult(data):
     # normalize 用于反归一化
