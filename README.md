@@ -4,15 +4,53 @@
 
 经测试python 3.7没问题
 
+```shell
+pipreqs . --encoding=utf-8
 ```
-pip install -r requirements.txt
+
 ```
+pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+### TF1环境
+
+requirements.txt如下，基于python3.7
+
+```
+Keras==2.3.1
+numpy==1.16.5
+pandas==0.25.1
+scikit_learn==1.0.2
+tensorflow==1.15.0
+tensorflow_intel==2.11.0
+matplotlib~=3.0.3
+```
+
+### TF2环境
+
+基于python3.12
+
+```
+keras==3.5.0
+numpy==2.1.3
+pandas==2.2.3
+scikit_learn==1.5.2
+tensorflow==2.18.0
+tensorflow_intel==2.18.0
+tensorflow_intel==2.17.0
+```
+
+## 项目文件介绍
+
+- `note.ipynb`：TF1下的所有功能实现
+- `predict_T+1_tf1.py`：TF1下通过前t天数据预测T+1天开盘、收盘、高点、低点
+- `predict_T+1_tf2.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点
 
 ## 数据集要求
 
 至少包含`['open', 'close', 'high', 'low']`这四列
 
-## 功能
+## 功能-TF1
 
 环境安装完成后打开`note.ipynb`即可进行代码运行
 
@@ -136,6 +174,10 @@ train_X, train_Y = create_dataset_7days(data, TIME_STEPS)
 #### 神经网络实现
 
 这个也没什么好说的其实，代码写的很明白。
+
+
+
+
 
 ## 特别致谢
 
