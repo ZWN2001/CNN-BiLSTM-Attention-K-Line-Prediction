@@ -4,10 +4,6 @@
 
 经测试python 3.7没问题
 
-```shell
-pipreqs . --encoding=utf-8
-```
-
 ```
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
@@ -28,18 +24,18 @@ matplotlib~=3.0.3
 
 ### TF2环境
 
-基于python3.12
+基于python3.11
 
 ```
-keras==3.5.0
-numpy==2.1.3
+keras==2.15.0
+numpy==2.2.0
 pandas==2.2.3
 scikit_learn==1.5.2
-tensorflow==2.18.0
-tensorflow_intel==2.18.0
+tensorflow==2.15.0
+tensorflow_intel==2.15.0
 ```
 
-### 特别提醒
+### 特别提醒：关于特定版本下的TF问题
 
 python3.12和高于2.16.0的tensorflow基本都会出现如下issue：
 
@@ -51,13 +47,13 @@ https://github.com/tensorflow/tensorflow/issues/63548
 - `predict_T+1_tf1.py`：TF1下通过前t天数据预测T+1天开盘、收盘、高点、低点
 - `predict_T+1_tf2.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点
 - `predict_T+1_tf2_distiller.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏
-- `predict_T+1_tf2.ipynb`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏
+- `predict_T+1_tf2.ipynb`：（推荐）TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏、量化，以及效果对比
 
 ## 数据集要求
 
 至少包含`['open', 'close', 'high', 'low']`这四列
 
-## 功能-TF1
+## 功能-以TF1
 
 环境安装完成后打开`note.ipynb`即可进行代码运行
 
@@ -78,13 +74,13 @@ def lstm(model_type):
     inputs = Input(shape=(TIME_STEPS, INPUT_DIMS))
     
     if model_type == 1:
-        # single-layer LSTM
+        # 仅single-layer LSTM
     
     if model_type == 2:
-        # multi-layer LSTM
+        # 仅multi-layer LSTM
     
     if model_type == 3:
-        # BiLSTM
+        # 仅BiLSTM
     
     return model
 ```
@@ -185,7 +181,134 @@ train_X, train_Y = create_dataset_7days(data, TIME_STEPS)
 
 这个也没什么好说的其实，代码写的很明白。
 
+一个点是教师和学生模型的实现与结构：
 
+```python
+# 教师模型与上面的attention_model()是一样的
+def teacher_model():
+    inputs = Input(shape=(TIME_STEPS, INPUT_DIMS))
+    x = Conv1D(filters=64, kernel_size=1, activation='relu')(inputs)
+    x = BatchNormalization()(x)
+    x = Dropout(dropout)(x)
+    lstm_out = Bidirectional(LSTM(lstm_units, return_sequences=True))(x)
+    lstm_out = BatchNormalization()(lstm_out)
+    lstm_out = Dropout(dropout)(lstm_out)
+    attention_mul = attention_3d_block(lstm_out)
+    attention_mul = Flatten()(attention_mul)
+    output = Dense(4, activation='linear')(attention_mul)  # 教师模型输出4个特征
+    model = Model(inputs=[inputs], outputs=output)
+    return model
+
+# 定义学生模型
+def student_model():
+    inputs = Input(shape=(TIME_STEPS, INPUT_DIMS))
+    x = Conv1D(filters=32, kernel_size=1, activation='relu')(inputs)  # 较少的过滤器
+    x = Dropout(dropout)(x)
+    lstm_out = Bidirectional(LSTM(lstm_units // 3, return_sequences=True))(x)  # 更少的LSTM单元
+    lstm_out = Dropout(dropout)(lstm_out)
+    # attention_mul = attention_3d_block(lstm_out)
+    attention_mul = Flatten()(lstm_out)
+    output = Dense(4, activation='linear')(attention_mul)  # 学生模型输出4个特征
+    model = Model(inputs=[inputs], outputs=output)
+    return model
+```
+
+其中学生模型减少的主要是：
+
+- 卷积的filters大小
+- LSTM的单元数量
+- 删除了attention_3d_block
+
+```
+Model: "model_8"
+__________________________________________________________________________________________________
+ Layer (type)                Output Shape                 Param #   Connected to                  
+==================================================================================================
+ input_9 (InputLayer)        [(None, 20, 4)]              0         []                            
+                                                                                                  
+ conv1d_8 (Conv1D)           (None, 20, 64)               320       ['input_9[0][0]']             
+                                                                                                  
+ batch_normalization_8 (Bat  (None, 20, 64)               256       ['conv1d_8[0][0]']            
+ chNormalization)                                                                                 
+                                                                                                  
+ dropout_16 (Dropout)        (None, 20, 64)               0         ['batch_normalization_8[0][0]'
+                                                                    ]                             
+                                                                                                  
+ bidirectional_5 (Bidirecti  (None, 20, 128)              66048     ['dropout_16[0][0]']          
+ onal)                                                                                            
+                                                                                                  
+ batch_normalization_9 (Bat  (None, 20, 128)              512       ['bidirectional_5[0][0]']     
+ chNormalization)                                                                                 
+                                                                                                  
+ dropout_17 (Dropout)        (None, 20, 128)              0         ['batch_normalization_9[0][0]'
+                                                                    ]                             
+                                                                                                  
+ dense_12 (Dense)            (None, 20, 128)              16512     ['dropout_17[0][0]']          
+                                                                                                  
+ attention_vec (Permute)     (None, 20, 128)              0         ['dense_12[0][0]']            
+                                                                                                  
+ multiply_4 (Multiply)       (None, 20, 128)              0         ['dropout_17[0][0]',          
+                                                                     'attention_vec[0][0]']       
+                                                                                                  
+ flatten_8 (Flatten)         (None, 2560)                 0         ['multiply_4[0][0]']          
+                                                                                                  
+ dense_13 (Dense)            (None, 4)                    10244     ['flatten_8[0][0]']           
+                                                                                                  
+==================================================================================================
+Total params: 93892 (366.77 KB)
+Trainable params: 93508 (365.27 KB)
+Non-trainable params: 384 (1.50 KB)
+__________________________________________________________________________________________________
+Model: "model_9"
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #   
+=================================================================
+ input_10 (InputLayer)       [(None, 20, 4)]           0         
+                                                                 
+ conv1d_9 (Conv1D)           (None, 20, 32)            160       
+                                                                 
+ dropout_18 (Dropout)        (None, 20, 32)            0         
+                                                                 
+ bidirectional_6 (Bidirecti  (None, 20, 42)            9072      
+ onal)                                                           
+                                                                 
+ dropout_19 (Dropout)        (None, 20, 42)            0         
+                                                                 
+ flatten_9 (Flatten)         (None, 840)               0         
+                                                                 
+ dense_14 (Dense)            (None, 4)                 3364      
+                                                                 
+=================================================================
+Total params: 12596 (49.20 KB)
+Trainable params: 12596 (49.20 KB)
+Non-trainable params: 0 (0.00 Byte)
+_________________________________________________________________
+
+```
+
+
+
+
+
+## 实验结果
+
+![](.assets\image-20241209213752657.png)
+
+```
+MAE: 0.007749906191539969
+MSE: 0.00012878733288417476
+涨跌准确率: 98.45743667872786%
+```
+
+直接使用学生模型：
+
+![](.assets\image-20241209215239366.png)
+
+```
+MAE: 0.046397496942270564
+MSE: 0.002730334318949594
+涨跌准确率: 98.43839268710721%
+```
 
 
 
