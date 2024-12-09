@@ -292,7 +292,7 @@ MSE: 0.002730334318949594
 
 ### 量化后
 
-![](C:\Users\21343\AppData\Roaming\Typora\typora-user-images\image-20241209224025860.png)
+![](.assets/image-20241209224025860.png)
 
 ```
 MAE: 0.008278770437173106
