@@ -39,12 +39,19 @@ tensorflow==2.18.0
 tensorflow_intel==2.18.0
 ```
 
+### 特别提醒
+
+python3.12和高于2.16.0的tensorflow基本都会出现如下issue：
+
+https://github.com/tensorflow/tensorflow/issues/63548
+
 ## 项目文件介绍
 
 - `note.ipynb`：TF1下的所有功能实现
 - `predict_T+1_tf1.py`：TF1下通过前t天数据预测T+1天开盘、收盘、高点、低点
 - `predict_T+1_tf2.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点
 - `predict_T+1_tf2_distiller.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏
+- `predict_T+1_tf2.ipynb`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏
 
 ## 数据集要求
 
