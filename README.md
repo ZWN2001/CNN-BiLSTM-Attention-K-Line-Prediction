@@ -1,8 +1,11 @@
 # CNN-BiLSTM-Attention-K-Line-Prediction
+## todo
+-[] 完善实验
+-[] 迁移readme到tf2
 
 ## 环境
 
-经测试python 3.7，3.11没问题
+经测试python 3.7，3.11没问题，推荐3.11
 
 ```
 pip install -r requirements.txt  -i https://pypi.tuna.tsinghua.edu.cn/simple
