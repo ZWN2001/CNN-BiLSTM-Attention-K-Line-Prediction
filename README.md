@@ -378,8 +378,6 @@ alpha = 0.1
 
 #### temperature
 
-这里很奇怪，我尝试了使用 temperature=5 和 temperature=15，但效果明显不如temperature=10 ，但是这里为10时MSE却明显更高。。。我不李姐
-
 ![](param_results/temperature/temperature-MSE.png)
 
 #### alpha
