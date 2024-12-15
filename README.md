@@ -55,12 +55,21 @@ https://github.com/tensorflow/tensorflow/issues/63548
 
 ## 项目文件介绍
 
+### 代码
+
 - `predict_T+1_tf2.ipynb`：（推荐）TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏、量化，以及效果对比
 
 - `note.ipynb`：TF1下的功能实现
 - `predict_T+1_tf1.py`：TF1下通过前t天数据预测T+1天开盘、收盘、高点、低点
 - `predict_T+1_tf2.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点
 - `predict_T+1_tf2_distiller.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏
+
+### 实验结果
+
+- `student_tflite_models`：剪枝后的TFLite格式的模型文件
+- `studentSavedModel`：蒸馏后的学生模型
+- `teacherSavedModel`：蒸馏使用的教师模型
+- `param_results`：参数变化对比
 
 ## 数据集要求
 
@@ -275,7 +284,22 @@ _________________________________________________________________
 
 ## 实验结果
 
-### 直接训练模型
+### 特定参属下的不同策略对比
+
+固定使用如下参数进行不同策略的结果对比
+
+```python
+INPUT_DIMS = 4
+TIME_STEPS = 20
+lstm_units = 64
+conv_filters = 64
+epoch = 30
+dropout = 0.4
+temperature = 5
+alpha = 0.1
+```
+
+#### 直接训练模型
 
 ![](.assets/image-20241210105805401.png)
 
@@ -285,7 +309,7 @@ MSE: 0.0001581908717381451
 涨跌准确率: 98.8192725195201%
 ```
 
-### 蒸馏后
+#### 蒸馏后
 
 ![](.assets/image-20241209230108270.png)
 
@@ -295,7 +319,7 @@ MSE: 1.3173944023981867e-05
 涨跌准确率: 98.43839268710721%
 ```
 
-### 直接使用学生模型
+#### 直接使用学生模型
 
 ![](.assets/image-20241209215239366.png)
 
@@ -305,7 +329,7 @@ MSE: 0.0002986253349154829
 涨跌准确率: 98.45743667872786%
 ```
 
-### 量化后
+#### 量化后
 
 ![](.assets/image-20241209224025860.png)
 
@@ -314,6 +338,55 @@ MAE: 0.002389627708062173
 MSE: 1.317394798118516e-05
 涨跌准确率: 98.43839268710721%
 ```
+
+### 参数对比
+
+运行`param_test.py`进行参数对比测试
+
+针对如下的几个参数进行参数效果对比：
+
+```python
+lstm_units = 64
+conv_filters = 64
+epoch = 30
+dropout = 0.4
+temperature = 5
+alpha = 0.1
+```
+
+从结果上看，只要不是特别离谱，对准确率的影响都不大，所以这里只展示对MSE的影响
+
+#### lstm_units
+
+80以下效果都不错，增加后很容易过拟合导致loss增加
+
+![](param_results/lstm_units/lstm_units-MSE.png)
+
+#### conv_filters
+
+64以上效果都不错
+
+![](param_results/conv_filters/conv_filters-MSE.png)
+
+#### epoch
+
+![](param_results/epoch/epoch-MSE.png)
+
+#### dropout
+
+![](param_results/dropout/dropout-MSE.png)
+
+#### temperature
+
+这里很奇怪，我尝试了使用 temperature=5 和 temperature=15，但效果明显不如temperature=10 ，但是这里为10时MSE却明显更高。。。我不李姐
+
+![](param_results/temperature/temperature-MSE.png)
+
+#### alpha
+
+![](param_results/alpha/alpha-MSE.png)
+
+
 
 
 
