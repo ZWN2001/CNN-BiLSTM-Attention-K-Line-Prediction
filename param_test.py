@@ -8,6 +8,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import os
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import *
+import json
 
 SINGLE_ATTENTION_VECTOR = False
 INPUT_DIMS = 4
@@ -254,9 +256,8 @@ def draw_result(targets, result, name):
     plt.savefig(f'{name}/{name}-Accuracy.png')
 
 
-def test_LSTM_units(test_Y):
+def test_LSTM_units(test_Y, targets):
     global lstm_units
-    targets = [32, 48, 64, 80, 96, 112, 128]
     result = []
     if not os.path.exists('lstm_units'):
         os.mkdir('lstm_units')
@@ -266,11 +267,11 @@ def test_LSTM_units(test_Y):
         result.append([mae, mse, accuracy])
 
     draw_result(targets, result, 'lstm_units')
+    return result
 
 
-def test_conv_filters(test_Y):
+def test_conv_filters(test_Y, targets):
     global conv_filters
-    targets = [16, 32, 48, 64, 80, 96, 112, 128]
     result = []
     if not os.path.exists('conv_filters'):
         os.mkdir('conv_filters')
@@ -280,11 +281,11 @@ def test_conv_filters(test_Y):
         result.append([mae, mse, accuracy])
 
     draw_result(targets, result, 'conv_filters')
+    return result
 
 
-def test_epoch(test_Y):
+def test_epoch(test_Y, targets):
     global epoch
-    targets = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
     result = []
     if not os.path.exists('epoch'):
         os.mkdir('epoch')
@@ -294,11 +295,11 @@ def test_epoch(test_Y):
         result.append([mae, mse, accuracy])
 
     draw_result(targets, result, 'epoch')
+    return result
 
 
-def test_dropout(test_Y):
+def test_dropout(test_Y, targets):
     global dropout
-    targets = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     result = []
     if not os.path.exists('dropout'):
         os.mkdir('dropout')
@@ -308,11 +309,11 @@ def test_dropout(test_Y):
         result.append([mae, mse, accuracy])
 
     draw_result(targets, result, 'dropout')
+    return result
 
 
-def test_temperature(test_Y):
+def test_temperature(test_Y, targets):
     global temperature
-    targets = [5, 10, 15, 20, 25, 30]
     result = []
     if not os.path.exists('temperature'):
         os.mkdir('temperature')
@@ -322,11 +323,11 @@ def test_temperature(test_Y):
         result.append([mae, mse, accuracy])
 
     draw_result(targets, result, 'temperature')
+    return result
 
 
-def test_alpha(test_Y):
+def test_alpha(test_Y, targets):
     global alpha
-    targets = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     result = []
     if not os.path.exists('alpha'):
         os.mkdir('alpha')
@@ -336,6 +337,7 @@ def test_alpha(test_Y):
         result.append([mae, mse, accuracy])
 
     draw_result(targets, result, 'alpha')
+    return result
 
 
 def set_default():
@@ -369,20 +371,44 @@ if __name__ == '__main__':
     # 划分训练集和测试集
     train_X, test_X, train_Y, test_Y = train_test_split(trainX, trainY, test_size=0.2, random_state=42)
 
-    set_default()
-    test_LSTM_units(test_Y)
+    targets_all = {
+        'lstm_units': [32, 48, 64, 80, 96, 112, 128],
+        'conv_filters': [16, 32, 48, 64, 80, 96, 112, 128],
+        'epoch': [5, 10, 15, 20, 25, 30, 35, 40, 45, 50],
+        'dropout': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+        'temperature': [5, 10, 15, 20, 25, 30],
+        'alpha': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    }
+
+    result_all = {}
 
     set_default()
-    test_conv_filters(test_Y)
+    result = test_LSTM_units(test_Y, targets_all['lstm_units'])
+    result_all['lstm_units'] = result
 
     set_default()
-    test_epoch(test_Y)
+    result = test_conv_filters(test_Y, targets_all['conv_filters'])
+    result_all['conv_filters'] = result
 
     set_default()
-    test_dropout(test_Y)
+    result = test_epoch(test_Y, targets_all['epoch'])
+    result_all['epoch'] = result
 
     set_default()
-    test_temperature(test_Y)
+    result = test_dropout(test_Y, targets_all['dropout'])
+    result_all['dropout'] = result
 
     set_default()
-    test_alpha(test_Y)
+    result = test_temperature(test_Y, targets_all['temperature'])
+    result_all['temperature'] = result
+
+    set_default()
+    result = test_alpha(test_Y, targets_all['alpha'])
+    result_all['alpha'] = result
+
+    # 保存结果为json
+    with open('.param_results/result.json', 'w') as f:
+        json.dump(result_all, f)
+
+
+
