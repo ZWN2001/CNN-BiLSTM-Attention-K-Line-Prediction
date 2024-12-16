@@ -360,29 +360,29 @@ alpha = 0.1
 
 80以下效果都不错，增加后很容易过拟合导致loss增加
 
-![](param_results/lstm_units/lstm_units-MSE.png)
+<img src="param_results/lstm_units/lstm_units-MSE.png" style="zoom:72%;" />
 
 #### conv_filters
 
 64以上效果都不错
 
-![](param_results/conv_filters/conv_filters-MSE.png)
+<img src="./param_results/conv_filters/conv_filters-MSE.png" style="zoom:72%;" />
 
 #### epoch
 
-![](param_results/epoch/epoch-MSE.png)
+<img src="./param_results/epoch/epoch-MSE.png" style="zoom:72%;" />
 
 #### dropout
 
-![](param_results/dropout/dropout-MSE.png)
+<img src="./param_results/dropout/dropout-MSE.png" style="zoom:72%;" />
 
 #### temperature
 
-![](param_results/temperature/temperature-MSE.png)
+<img src="param_results/temperature/temperature-MSE.png" style="zoom:72%;" />
 
 #### alpha
 
-![](param_results/alpha/alpha-MSE.png)
+<img src="./param_results/alpha/alpha-MSE.png" style="zoom:72%;" />
 
 
 
