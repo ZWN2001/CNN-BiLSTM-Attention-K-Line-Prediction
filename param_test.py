@@ -369,20 +369,20 @@ if __name__ == '__main__':
     # 划分训练集和测试集
     train_X, test_X, train_Y, test_Y = train_test_split(trainX, trainY, test_size=0.2, random_state=42)
 
-    # set_default()
-    # test_LSTM_units(test_Y)
-    #
-    # set_default()
-    # test_conv_filters(test_Y)
-    #
-    # set_default()
-    # test_epoch(test_Y)
-    #
-    # set_default()
-    # test_dropout(test_Y)
+    set_default()
+    test_LSTM_units(test_Y)
+
+    set_default()
+    test_conv_filters(test_Y)
+
+    set_default()
+    test_epoch(test_Y)
+
+    set_default()
+    test_dropout(test_Y)
 
     set_default()
     test_temperature(test_Y)
 
-    # set_default()
-    # test_alpha(test_Y)
+    set_default()
+    test_alpha(test_Y)
