@@ -11,8 +11,11 @@
 
 - [x] 迁移readme到tf2
 - [x] 处理不同模块间同名变量
+- [ ] 迁移环境，使用[TensorFlow Model Optimization](https://github.com/tensorflow/model-optimization/releases/tag/v0.8.0)剪枝
 
 ## 环境
+
+**安装前请先看特别提醒部分**
 
 经测试python 3.7，3.11没问题，推荐3.11
 
@@ -49,9 +52,8 @@ tensorflow_intel==2.15.0
 
 ### 特别提醒：关于特定版本下的TF问题
 
-python3.12和高于2.16.0的tensorflow基本都会出现如下issue：
-
-https://github.com/tensorflow/tensorflow/issues/63548
+- python3.12和高于2.16.0的tensorflow基本都会出现如下issue：https://github.com/tensorflow/tensorflow/issues/63548
+- [TensorFlow Model Optimization](https://github.com/tensorflow/model-optimization/releases/tag/v0.8.0)最新版本对应支持的tensorflow为2.14，如果希望使用其进行量化和剪枝请注意版本
 
 ## 项目文件介绍
 
