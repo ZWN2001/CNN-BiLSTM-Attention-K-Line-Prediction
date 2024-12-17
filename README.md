@@ -11,7 +11,7 @@
 
 - [x] 迁移readme到tf2
 - [x] 处理不同模块间同名变量
-- [ ] 迁移环境，使用[TensorFlow Model Optimization](https://github.com/tensorflow/model-optimization/releases/tag/v0.8.0)剪枝
+- [x] 迁移环境，使用[TensorFlow Model Optimization](https://github.com/tensorflow/model-optimization/releases/tag/v0.8.0)剪枝
 
 ## 环境
 
@@ -70,9 +70,14 @@ tensorflow_model_optimization==0.8.0
 
 ### 实验结果
 
-- `student_tflite_models`：剪枝后的TFLite格式的模型文件
-- `studentSavedModel`：蒸馏后的学生模型
-- `teacherSavedModel`：蒸馏使用的教师模型
+- `check_points`：训练好的模型的结果
+  - `student`：`student.save('check_points/student')`，直接 save 的模型
+  - `studentSavedModel`：蒸馏后通过`tf.saved_model.save()`保存的学生模型
+  - `teacherSavedModel`：蒸馏后通过`tf.saved_model.save()`保存的教师模型
+  - `student_after_prune`：蒸馏、剪枝后的学生模型
+  - `student_tflite_models_pruning_quantization`：蒸馏、剪枝、量化后的模型
+  - `student_tflite_models_direct_quantization`：蒸馏、量化后的模型
+
 - `param_results`：参数变化对比
 
 ## 数据集要求
@@ -335,22 +340,22 @@ MSE: 0.0002986253349154829
 
 #### 剪枝后
 
-![](.assets/image-20241217144710728.png)
+![](.assets/image-20241217153609834.png)
 
 ```
-MAE: 0.0038962343194878773
-MSE: 3.19380380902011e-05
-涨跌准确率: 98.47648067034851%
+MAE: 0.0025220377144519308
+MSE: 1.409958807691403e-05
+涨跌准确率: 98.43839268710721%
 ```
 
 #### 量化剪枝模型
 
-![](.assets/image-20241217144927548.png)
+![](.assets/image-20241217154113820.png)
 
 ```
-MAE: 0.003896235237216021
-MSE: 3.193804530110301e-05
-涨跌准确率: 98.47648067034851%
+MAE: 0.003216398370789621
+MSE: 1.8205137322952464e-05
+涨跌准确率: 98.45743667872786%
 ```
 
 
@@ -360,14 +365,14 @@ MSE: 3.193804530110301e-05
 ![](.assets/image-20241209224025860.png)
 
 ```
-MAE: 0.002389627708062173
-MSE: 1.317394798118516e-05
+MAE: 0.0030445685929175958
+MSE: 1.821908313592631e-05
 涨跌准确率: 98.43839268710721%
 ```
 
 #### 总结
 
-初始模型过拟合比较严重，蒸馏后得到的模型效果不错，但模型较大，直接剪枝或量化都能在保持模型效果的同时对模型进行压缩，但剪枝后量化的结果表明，模型基本已经达到优化极限。
+初始模型过拟合比较严重，蒸馏后得到的模型效果不错，但模型较大，直接剪枝或量化都能在保持模型效果的同时对模型进行压缩并改善过拟合的问题，但剪枝后进行量化的结果表明，模型过拟合的问题上基本已经达到优化极限。
 
 ### 参数对比
 
