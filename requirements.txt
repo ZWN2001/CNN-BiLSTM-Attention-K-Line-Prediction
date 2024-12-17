@@ -1,6 +1,7 @@
-keras==2.15.0
+keras==2.14.0
+matplotlib==3.10.0
 numpy==2.2.0
 pandas==2.2.3
-scikit_learn==1.5.2
-tensorflow==2.15.0
-tensorflow_intel==2.15.0
+scikit_learn==1.6.0
+tensorflow==2.14.1
+tensorflow_intel==2.14.1
