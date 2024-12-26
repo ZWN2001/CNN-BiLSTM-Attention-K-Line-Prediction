@@ -6,13 +6,6 @@
 
 该实验其实有一个比较不错的发现，即：即使非常小的模型对于开盘、收盘、高点、低点的预测值与真值差距可能很大，但是涨跌准确率却可以达到非常高的程度（接近98%），即预测涨跌是非常简单的。
 
-## todo
-- [x] 完善实验
-
-- [x] 迁移readme到tf2
-- [x] 处理不同模块间同名变量
-- [x] 迁移环境，使用[TensorFlow Model Optimization](https://github.com/tensorflow/model-optimization/releases/tag/v0.8.0)剪枝
-
 ## 环境
 
 **安装前请先看特别提醒部分**
@@ -50,6 +43,7 @@ scikit_learn==1.6.0
 tensorflow==2.14.1
 tensorflow_intel==2.14.1
 tensorflow_model_optimization==0.8.0
+visualkeras==0.1.4
 ```
 
 ### 特别提醒：关于特定版本下的TF问题
@@ -62,23 +56,26 @@ tensorflow_model_optimization==0.8.0
 ### 代码
 
 - `predict_T+1_tf2.ipynb`：（推荐）TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏、量化，以及效果对比
-
-- `note.ipynb`：TF1下的功能实现
-- `predict_T+1_tf1.py`：TF1下通过前t天数据预测T+1天开盘、收盘、高点、低点
-- `predict_T+1_tf2.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点
-- `predict_T+1_tf2_distiller.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏
+- `archive`：归档代码
+  - `note.ipynb`：TF1下的功能实现
+  - `predict_T+1_tf1.py`：TF1下通过前t天数据预测T+1天开盘、收盘、高点、低点
+  - `predict_T+1_tf2.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点
+  - `predict_T+1_tf2_distiller.py`：TF2下通过前t天数据预测T+1天开盘、收盘、高点、低点，使用蒸馏
 
 ### 实验结果
 
 - `check_points`：训练好的模型的结果
-  - `student`：`student.save('check_points/student')`，直接 save 的模型
-  - `studentSavedModel`：蒸馏后通过`tf.saved_model.save()`保存的学生模型
-  - `teacherSavedModel`：蒸馏后通过`tf.saved_model.save()`保存的教师模型
-  - `student_after_prune`：蒸馏、剪枝后的学生模型
-  - `student_tflite_models_pruning_quantization`：蒸馏、剪枝、量化后的模型
-  - `student_tflite_models_direct_quantization`：蒸馏、量化后的模型
-
+  - `model_origin_saved_model`：直接训练后通过`tf.saved_model.save()`保存的模型
+  - `model_origin_tflite`：直接训练后保存的TFLite模型
+  - `student_saved_model`：蒸馏后通过`tf.saved_model.save()`保存的学生模型
+  - `teacher_saved_model`：蒸馏后通过`tf.saved_model.save()`保存的教师模型
+  - `student_after_prune_saved_model`：蒸馏、剪枝后通过`tf.saved_model.save()`保存的的学生模型
+  - `student_tflite_models_pruning_quantization`：蒸馏、剪枝、量化后的TFLite模型
+  - `student_tflite_models_direct_quantization`：蒸馏后直接量化的TFLite模型
+  
 - `param_results`：参数变化对比
+
+- `.assets`：一些图片
 
 ## 数据集要求
 
@@ -178,6 +175,54 @@ train_X, train_Y = create_dataset_7days(data, TIME_STEPS)
 
 
 
+## 模型格式
+
+![](.assets/teacher.png)
+
+```
+Model: "model_8"
+__________________________________________________________________________________________________
+ Layer (type)                Output Shape                 Param #   Connected to                  
+==================================================================================================
+ input_9 (InputLayer)        [(None, 20, 4)]              0         []                            
+                                                                                                  
+ conv1d_8 (Conv1D)           (None, 20, 64)               320       ['input_9[0][0]']             
+                                                                                                  
+ batch_normalization_8 (Bat  (None, 20, 64)               256       ['conv1d_8[0][0]']            
+ chNormalization)                                                                                 
+                                                                                                  
+ dropout_16 (Dropout)        (None, 20, 64)               0         ['batch_normalization_8[0][0]'
+                                                                    ]                             
+                                                                                                  
+ bidirectional_5 (Bidirecti  (None, 20, 128)              66048     ['dropout_16[0][0]']          
+ onal)                                                                                            
+                                                                                                  
+ batch_normalization_9 (Bat  (None, 20, 128)              512       ['bidirectional_5[0][0]']     
+ chNormalization)                                                                                 
+                                                                                                  
+ dropout_17 (Dropout)        (None, 20, 128)              0         ['batch_normalization_9[0][0]'
+                                                                    ]                             
+                                                                                                  
+ dense_12 (Dense)            (None, 20, 128)              16512     ['dropout_17[0][0]']          
+                                                                                                  
+ attention_vec (Permute)     (None, 20, 128)              0         ['dense_12[0][0]']            
+                                                                                                  
+ multiply_4 (Multiply)       (None, 20, 128)              0         ['dropout_17[0][0]',          
+                                                                     'attention_vec[0][0]']       
+                                                                                                  
+ flatten_8 (Flatten)         (None, 2560)                 0         ['multiply_4[0][0]']          
+                                                                                                  
+ dense_13 (Dense)            (None, 4)                    10244     ['flatten_8[0][0]']           
+                                                                                                  
+==================================================================================================
+Total params: 93892 (366.77 KB)
+Trainable params: 93508 (365.27 KB)
+Non-trainable params: 384 (1.50 KB)
+__________________________________________________________________________________________________
+```
+
+![](.assets/model_origin_tflite.tflite.png)
+
 ## 核心功能：通过前t天数据预测T+1天开盘、收盘、高点、低点
 
 通过前t天数据预测T+1天开盘、收盘、高点、低点是最有实践价值且易于使用的功能，这部分内容主要可以参考`predict_T+1_tf2.ipynb`中的实现。该部分在前面功能实现的基础上，对模型大小进行了优化（从420KB到量化后67KB，参数量从93892到蒸馏后12596）
@@ -222,46 +267,9 @@ def student_model():
 - LSTM的单元数量
 - 删除了attention_3d_block
 
+![](.assets/student.png)
+
 ```
-Model: "model_8"
-__________________________________________________________________________________________________
- Layer (type)                Output Shape                 Param #   Connected to                  
-==================================================================================================
- input_9 (InputLayer)        [(None, 20, 4)]              0         []                            
-                                                                                                  
- conv1d_8 (Conv1D)           (None, 20, 64)               320       ['input_9[0][0]']             
-                                                                                                  
- batch_normalization_8 (Bat  (None, 20, 64)               256       ['conv1d_8[0][0]']            
- chNormalization)                                                                                 
-                                                                                                  
- dropout_16 (Dropout)        (None, 20, 64)               0         ['batch_normalization_8[0][0]'
-                                                                    ]                             
-                                                                                                  
- bidirectional_5 (Bidirecti  (None, 20, 128)              66048     ['dropout_16[0][0]']          
- onal)                                                                                            
-                                                                                                  
- batch_normalization_9 (Bat  (None, 20, 128)              512       ['bidirectional_5[0][0]']     
- chNormalization)                                                                                 
-                                                                                                  
- dropout_17 (Dropout)        (None, 20, 128)              0         ['batch_normalization_9[0][0]'
-                                                                    ]                             
-                                                                                                  
- dense_12 (Dense)            (None, 20, 128)              16512     ['dropout_17[0][0]']          
-                                                                                                  
- attention_vec (Permute)     (None, 20, 128)              0         ['dense_12[0][0]']            
-                                                                                                  
- multiply_4 (Multiply)       (None, 20, 128)              0         ['dropout_17[0][0]',          
-                                                                     'attention_vec[0][0]']       
-                                                                                                  
- flatten_8 (Flatten)         (None, 2560)                 0         ['multiply_4[0][0]']          
-                                                                                                  
- dense_13 (Dense)            (None, 4)                    10244     ['flatten_8[0][0]']           
-                                                                                                  
-==================================================================================================
-Total params: 93892 (366.77 KB)
-Trainable params: 93508 (365.27 KB)
-Non-trainable params: 384 (1.50 KB)
-__________________________________________________________________________________________________
 Model: "model_9"
 _________________________________________________________________
  Layer (type)                Output Shape              Param #   
@@ -289,7 +297,7 @@ _________________________________________________________________
 
 ```
 
-
+![](.assets/student_model_quant.tflite.png)
 
 ## 实验结果
 
