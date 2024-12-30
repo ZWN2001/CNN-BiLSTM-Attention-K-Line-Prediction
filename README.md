@@ -320,7 +320,7 @@ alpha = 0.1
 
 #### 直接训练模型
 
-![](.assets/Predicted Values.png)
+![](.assets/Predicted_Values.png)
 
 ```
 MAE: 0.010913534954714577
@@ -331,7 +331,7 @@ MSE: 0.0001581908717381451
 
 #### 蒸馏后
 
-![](.assets/After Distillation.png)
+![](.assets/After_Distillation.png)
 
 ```
 MAE: 0.0023896262347925163
@@ -341,7 +341,7 @@ MSE: 1.3173944023981867e-05
 
 #### 直接使用学生模型
 
-![](.assets/Student Only.png)
+![](.assets/Student_Only.png)
 
 ```
 MAE: 0.015166467314500085
@@ -351,7 +351,7 @@ MSE: 0.0002986253349154829
 
 #### 剪枝后
 
-![](.assets/After Purning.png)
+![](.assets/After_Purning.png)
 
 ```
 MAE: 0.0025220377144519308
@@ -361,7 +361,7 @@ MSE: 1.409958807691403e-05
 
 #### 量化剪枝模型
 
-![](.assets/after quantization.png)
+![](.assets/after_quantization.png)
 
 ```
 MAE: 0.003216398370789621
@@ -374,7 +374,7 @@ MSE: 1.8205137322952464e-05
 
 #### 直接量化蒸馏模型
 
-![](.assets/direct after quantization.png)
+![](.assets/direct_after_quantization.png)
 
 ```
 MAE: 0.0030445685929175958
