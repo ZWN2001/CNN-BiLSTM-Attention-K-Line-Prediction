@@ -1,6 +1,6 @@
 # CNN-BiLSTM-Attention-K-Line-Prediction
 
-这是一个课程作业
+这是一个课程作业（包括撰写论文），来自buaa机器学习课程
 
 ## 项目介绍
 
